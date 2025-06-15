@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Conversor Rubini Coins</title>
+  <style>
+    body {
+      background-color: #f2f2f2;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      background-color: #fff;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 420px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #111;
+    }
+
+    label {
+      font-weight: 600;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    button {
+      padding: 10px;
+      width: 100%;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    .btn-calc {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .btn-clear {
+      background-color: #e9ecef;
+      color: #333;
+    }
+
+    .result {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #f8f9fa;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 10px;
+      font-weight: bold;
+      word-break: break-word;
+    }
+
+    .copy-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Conversor Rubini Coins</h2>
+
+    <label for="conversionType">Selecione o tipo de conversão:</label>
+    <select id="conversionType" onchange="showFields()">
+      <option value="">-- Escolha uma opção --</option>
+      <option value="goldToRC">Gold → Rubini Coins</option>
+      <option value="rcToGold">Rubini Coins → Gold</option>
+      <option value="rcToRealBuy">Rubini Coins → Real (compra)</option>
+      <option value="rcToRealSell">Rubini Coins → Real (venda)</option>
+    </select>
+
+    <div id="dynamicFields"></div>
+
+    <button class="btn-calc" onclick="calculate()">Calcular</button>
+
+    <div class="result hidden" id="resultContainer">
+      <span id="result">Resultado:</span>
+      <button class="copy-btn" onclick="copyResult()">📋</button>
+    </div>
+
+    <button class="btn-clear" onclick="clearAll()">Limpar</button>
+  </div>
+
+  <script>
+    function showFields() {
+      const type = document.getElementById('conversionType').value;
+      const container = document.getElementById('dynamicFields');
+      container.innerHTML = '';
+
+      if (type === 'goldToRC') {
+        container.innerHTML = `
+          <label for="goldInput">Valor em Gold:</label>
+          <input type="number" id="goldInput" placeholder="Ex: 3325000">
+          <label for="goldPer25RC">Quantos Gold valem 25 Rubini Coins?</label>
+          <input type="number" id="goldPer25RC" placeholder="Ex: 3325000">
+        `;
+      }
+
+      else if (type === 'rcToGold') {
+        container.innerHTML = `
+          <label for="rcInput">Quantidade de Rubini Coins:</label>
+          <input type="number" id="rcInput" placeholder="Ex: 10">
+          <label for="goldPerRC">Quantos Gold valem 1 Rubini Coin?</label>
+          <input type="number" id="goldPerRC" placeholder="Ex: 133000">
+        `;
+      }
+
+      else if (type === 'rcToRealBuy') {
+        container.innerHTML = `
+          <label for="rcInput">Quantidade de Rubini Coins:</label>
+          <input type="number" id="rcInput" placeholder="Ex: 25">
+          <label for="price25RCBuy">Preço de 25 Rubini Coins em R$ (compra):</label>
+          <input type="number" id="price25RCBuy" placeholder="Ex: 2.20">
+        `;
+      }
+
+      else if (type === 'rcToRealSell') {
+        container.innerHTML = `
+          <label for="rcInput">Quantidade de Rubini Coins:</label>
+          <input type="number" id="rcInput" placeholder="Ex: 25">
+          <label for="price25RCSell">Valor recebido por 25 Rubini Coins (venda):</label>
+          <input type="number" id="price25RCSell" placeholder="Ex: 2.02">
+        `;
+      }
+    }
+
+    function calculate() {
+      const type = document.getElementById('conversionType').value;
+      const resultEl = document.getElementById('result');
+      const resultBox = document.getElementById('resultContainer');
+      let result = '';
+
+      if (type === 'goldToRC') {
+        const gold = parseFloat(document.getElementById('goldInput').value);
+        const goldPer25 = parseFloat(document.getElementById('goldPer25RC').value);
+        if (isNaN(gold) || isNaN(goldPer25)) {
+          result = 'Preencha os campos corretamente.';
+        } else {
+          const rc = (gold / goldPer25) * 25;
+          result = `Você pode comprar: ${rc.toFixed(2)} Rubini Coins`;
+        }
+      }
+
+      else if (type === 'rcToGold') {
+        const rc = parseFloat(document.getElementById('rcInput').value);
+        const goldPerRC = parseFloat(document.getElementById('goldPerRC').value);
+        if (isNaN(rc) || isNaN(goldPerRC)) {
+          result = 'Preencha os campos corretamente.';
+        } else {
+          result = `Equivale a: ${(rc * goldPerRC).toLocaleString('pt-BR')} Gold`;
+        }
+      }
+
+      else if (type === 'rcToRealBuy') {
+        const rc = parseFloat(document.getElementById('rcInput').value);
+        const price = parseFloat(document.getElementById('price25RCBuy').value);
+        if (isNaN(rc) || isNaN(price)) {
+          result = 'Preencha os campos corretamente.';
+        } else {
+          const real = (rc / 25) * price;
+          result = `Custo: R$ ${real.toFixed(2)}`;
+        }
+      }
+
+      else if (type === 'rcToRealSell') {
+        const rc = parseFloat(document.getElementById('rcInput').value);
+        const price = parseFloat(document.getElementById('price25RCSell').value);
+        if (isNaN(rc) || isNaN(price)) {
+          result = 'Preencha os campos corretamente.';
+        } else {
+          const real = (rc / 25) * price;
+          result = `Você receberá: R$ ${real.toFixed(2)}`;
+        }
+      }
+
+      resultEl.textContent = result;
+      resultBox.classList.remove('hidden');
+    }
+
+    function clearAll() {
+      document.getElementById('conversionType').value = '';
+      document.getElementById('dynamicFields').innerHTML = '';
+      document.getElementById('resultContainer').classList.add('hidden');
+    }
+
+    function copyResult() {
+      const text = document.getElementById('result').textContent;
+      navigator.clipboard.writeText(text).then(() => alert('Resultado copiado!'));
+    }
+  </script>
+</body>
+</html>
